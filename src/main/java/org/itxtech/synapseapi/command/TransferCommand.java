@@ -10,7 +10,7 @@ public class TransferCommand extends Command {
     public TransferCommand(String name) {
         super(name);
         this.setDescription("Transfer server to another server");
-        this.setUsage("/transfer description>");
+        this.setUsage("/transfer <description>");
         this.setPermission("synapseapi.command.transfer");
         this.setAliases(new String[] {"transfer", "stransfer", "synapsetransfer", "proxy"});
     }
