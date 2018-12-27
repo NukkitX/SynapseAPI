@@ -7,6 +7,7 @@ import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.ConfigSection;
+import org.itxtech.synapseapi.command.TransferCommand;
 import org.itxtech.synapseapi.messaging.Messenger;
 import org.itxtech.synapseapi.messaging.StandardMessenger;
 import org.itxtech.synapseapi.network.protocol.mcpe.SetHealthPacket;
@@ -40,6 +41,7 @@ public class SynapseAPI extends PluginBase {
     @Override
     public void onEnable() {
         this.getServer().getNetwork().registerPacket(ProtocolInfo.SET_HEALTH_PACKET, SetHealthPacket.class);
+        this.getServer().getCommandMap().register("transfer", new TransferCommand("transfer"));
         this.messenger = new StandardMessenger();
         loadEntries();
     }
