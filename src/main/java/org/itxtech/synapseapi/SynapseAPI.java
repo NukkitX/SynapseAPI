@@ -8,9 +8,11 @@ import cn.nukkit.event.server.BatchPacketsEvent;
 import cn.nukkit.network.RakNetInterface;
 import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.DataPacket;
+import cn.nukkit.network.protocol.MoveEntityAbsolutePacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.ConfigSection;
+import cn.nukkit.utils.MainLogger;
 import org.itxtech.synapseapi.messaging.Messenger;
 import org.itxtech.synapseapi.messaging.StandardMessenger;
 import org.itxtech.synapseapi.network.protocol.mcpe.SetHealthPacket;
@@ -130,39 +132,60 @@ public class SynapseAPI extends PluginBase implements Listener {
 
     @EventHandler
     public void onBatchPackets(BatchPacketsEvent e) {
-        e.setCancelled();
         Player[] players = e.getPlayers();
-
         DataPacket[] packets = e.getPackets();
 
-        Map<DataPacket, List<Player>> unchanged = new HashMap<>();
-        HashMap<SynapseEntry, Map<Player, DataPacket[]>> map = new HashMap<>();
+        List<SynapsePlayer> sp = new LinkedList<>();
+        List<Player> np = new LinkedList<>();
 
         for (Player p : players) {
-            SynapsePlayer player = (SynapsePlayer) p;
-
-            SynapseEntry entry = player.getSynapseEntry();
-            Map<Player, DataPacket[]> playerPackets = map.get(entry);
-            if (playerPackets == null) {
-                playerPackets = new HashMap<>();
+            if (p instanceof SynapsePlayer) {
+                sp.add((SynapsePlayer) p);
+            } else {
+                np.add(p);
             }
+        }
+
+        if (sp.isEmpty()) {
+            return;
+        }
+
+        if (!np.isEmpty()) {
+            getServer().batchPackets(np.toArray(new Player[0]), packets);
+        }
+
+        e.setCancelled();
+
+//        Map<DataPacket, List<Player>> unchanged = new HashMap<>();
+        HashMap<SynapseEntry, Map<SynapsePlayer, DataPacket[]>> map = new HashMap<>();
+
+        for (SynapsePlayer p : sp) {
+            Map<SynapsePlayer, DataPacket[]> playerPackets = map.computeIfAbsent(p.getSynapseEntry(), k -> new HashMap<>());
 
             DataPacket[] replaced = Arrays.stream(packets)
                     .map(packet -> DataPacketEidReplacer.replace(packet, p.getId(), SynapsePlayer.REPLACE_ID))
                     .toArray(DataPacket[]::new);
 
-            playerPackets.put(player, replaced);
-
-            map.put(entry, playerPackets);
+            playerPackets.put(p, replaced);
         }
 
-        for (Map.Entry<SynapseEntry, Map<Player, DataPacket[]>> entry : map.entrySet()) {
-            for (Map.Entry<Player, DataPacket[]> playerEntry : entry.getValue().entrySet()) {
+        for (Map.Entry<SynapseEntry, Map<SynapsePlayer, DataPacket[]>> entry : map.entrySet()) {
+            for (Map.Entry<SynapsePlayer, DataPacket[]> playerEntry : entry.getValue().entrySet()) {
+                SynapsePlayer p = playerEntry.getKey();
+
                 for (DataPacket pk : playerEntry.getValue()) {
-                    playerEntry.getKey().dataPacket(pk);
+                    if (!pk.isEncoded) {
+                        pk.encode();
+                        pk.isEncoded = true;
+                    }
+
+                    if (pk instanceof MoveEntityAbsolutePacket) {
+                        MainLogger.getLogger().info("Sending movement of(" + ((MoveEntityAbsolutePacket) pk).eid + ") to player '" + p.getName() + "' (" + p.getId() + ")");
+                    }
+
+                    p.getInterface().putPacket(p, pk);
                 }
             }
-//            entry.getKey().getSynapseInterface().getPutPacketThread().addMainToThreadBroadcast(entry.getValue());
         }
     }
 }

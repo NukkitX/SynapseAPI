@@ -491,4 +491,8 @@ public class SynapsePlayer extends Player {
 
         return this.interfaz.putPacket(this, packet, needACK, direct);
     }
+
+    public SourceInterface getInterface() {
+        return this.interfaz;
+    }
 }

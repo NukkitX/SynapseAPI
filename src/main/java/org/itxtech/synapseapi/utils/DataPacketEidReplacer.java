@@ -8,7 +8,6 @@ import cn.nukkit.network.protocol.*;
 import cn.nukkit.utils.MainLogger;
 import com.google.common.collect.Sets;
 
-import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -27,7 +26,6 @@ public class DataPacketEidReplacer {
         DataPacket packet = pk.clone();
         boolean change = false;
 
-        //TODO: return original packet if there is no change
         switch (packet.pid()) {
             case AddPlayerPacket.NETWORK_ID:
                 AddPlayerPacket app = (AddPlayerPacket) packet;
@@ -148,8 +146,17 @@ public class DataPacketEidReplacer {
                 }
                 break;
             case PlayerListPacket.NETWORK_ID:
-                Arrays.stream(((PlayerListPacket) packet).entries).filter(entry -> entry.entityId == from).forEach(entry -> entry.entityId = to);
-                change = true;
+                PlayerListPacket plp = (PlayerListPacket) packet;
+
+                for (int i = 0; i < plp.entries.length; i++) {
+                    PlayerListPacket.Entry entry = plp.entries[i];
+
+                    if (entry.entityId == from) {
+                        plp.entries[i] = new PlayerListPacket.Entry(entry.uuid, to, entry.name, entry.skin, entry.xboxUserId);
+                        change = true;
+                    }
+                }
+
                 break;
             case BossEventPacket.NETWORK_ID:
                 if (((BossEventPacket) packet).bossEid == from) {
