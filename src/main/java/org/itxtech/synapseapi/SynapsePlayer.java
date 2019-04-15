@@ -492,6 +492,23 @@ public class SynapsePlayer extends Player {
         return this.interfaz.putPacket(this, packet, needACK, direct);
     }
 
+    @Override
+    public void addMovement(double x, double y, double z, double yaw, double pitch, double headYaw) {
+//        super.addMovement(x, y, z, yaw, pitch, headYaw);
+        MoveEntityAbsolutePacket pk = new MoveEntityAbsolutePacket();
+        pk.eid = this.id;
+        pk.x = (double) ((float) x);
+        pk.y = (double) ((float) y);
+        pk.z = (double) ((float) z);
+        pk.yaw = (double) ((float) yaw);
+        pk.headYaw = (double) ((float) yaw);
+        pk.pitch = (double) ((float) pitch);
+
+        for (Player player : this.getViewers().values()) {
+            player.dataPacket(pk);
+        }
+    }
+
     public SourceInterface getInterface() {
         return this.interfaz;
     }
