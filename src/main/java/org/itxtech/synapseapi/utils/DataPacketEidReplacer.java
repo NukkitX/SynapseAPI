@@ -25,158 +25,87 @@ public class DataPacketEidReplacer {
 
     public static DataPacket replace(DataPacket pk, long from, long to) {
         DataPacket packet = pk.clone();
-        boolean change = false;
+        boolean change = true;
 
-        //TODO: return original packet if there is no change
         switch (packet.pid()) {
-            case AddPlayerPacket.NETWORK_ID:
+            case ProtocolInfo.ADD_PLAYER_PACKET:
                 AddPlayerPacket app = (AddPlayerPacket) packet;
 
-                EntityMetadata replaced = replaceMetadata(app.metadata, from, to);
-
-                if (replaced != null) {
-                    change = true;
-                    app.metadata = replaced;
-                }
+                app.metadata = replaceMetadata(app.metadata, from, to);
                 break;
-            case AddEntityPacket.NETWORK_ID:
+            case ProtocolInfo.ADD_ENTITY_PACKET:
                 AddEntityPacket aep = (AddEntityPacket) packet;
 
-                replaced = replaceMetadata(aep.metadata, from, to);
-
-                if (replaced != null) {
-                    change = true;
-                    aep.metadata = replaced;
-                }
+                aep.metadata = replaceMetadata(aep.metadata, from, to);
                 break;
-            case AddItemEntityPacket.NETWORK_ID:
+            case ProtocolInfo.ADD_ITEM_ENTITY_PACKET:
                 AddItemEntityPacket aiep = (AddItemEntityPacket) packet;
 
-                replaced = replaceMetadata(aiep.metadata, from, to);
-
-                if (replaced != null) {
-                    change = true;
-                    aiep.metadata = replaced;
-                }
+                aiep.metadata = replaceMetadata(aiep.metadata, from, to);
                 break;
-            case AnimatePacket.NETWORK_ID:
-                if (((AnimatePacket) packet).eid == from) {
-                    ((AnimatePacket) packet).eid = to;
-                    change = true;
-                }
+            case ProtocolInfo.ANIMATE_PACKET:
+                if (((AnimatePacket) packet).eid == from) ((AnimatePacket) packet).eid = to;
                 break;
-            case TakeItemEntityPacket.NETWORK_ID:
-                if (((TakeItemEntityPacket) packet).entityId == from) {
-                    ((TakeItemEntityPacket) packet).entityId = to;
-                    change = true;
-                }
+            case ProtocolInfo.TAKE_ITEM_ENTITY_PACKET:
+                if (((TakeItemEntityPacket) packet).entityId == from) ((TakeItemEntityPacket) packet).entityId = to;
                 break;
-            case SetEntityMotionPacket.NETWORK_ID:
-                if (((SetEntityMotionPacket) packet).eid == from) {
-                    ((SetEntityMotionPacket) packet).eid = to;
-                    change = true;
-                }
+            case ProtocolInfo.SET_ENTITY_MOTION_PACKET:
+                if (((SetEntityMotionPacket) packet).eid == from) ((SetEntityMotionPacket) packet).eid = to;
                 break;
-            case SetEntityLinkPacket.NETWORK_ID:
+            case ProtocolInfo.SET_ENTITY_LINK_PACKET:
                 SetEntityLinkPacket selp = (SetEntityLinkPacket) packet;
 
-                if (selp.riderUniqueId == from) {
-                    selp.riderUniqueId = to;
-                    change = true;
-                }
-                if (selp.vehicleUniqueId == from) {
-                    selp.vehicleUniqueId = to;
-                    change = true;
-                }
-
+                if (selp.vehicleUniqueId == from) selp.vehicleUniqueId = to;
+                if (selp.riderUniqueId == from) selp.riderUniqueId = to;
                 break;
-            case SetEntityDataPacket.NETWORK_ID:
+            case ProtocolInfo.SET_ENTITY_DATA_PACKET:
                 SetEntityDataPacket sedp = (SetEntityDataPacket) packet;
 
-                if (sedp.eid == from) {
-                    sedp.eid = to;
-                    change = true;
-                }
-
-                replaced = replaceMetadata(sedp.metadata, from, to);
-
-                if (replaced != null) {
-                    change = true;
-                    sedp.metadata = replaced;
-                }
+                if (sedp.eid == from) sedp.eid = to;
+                sedp.metadata = replaceMetadata(sedp.metadata, from, to);
                 break;
-            case UpdateAttributesPacket.NETWORK_ID:
-                if (((UpdateAttributesPacket) packet).entityId == from) {
-                    ((UpdateAttributesPacket) packet).entityId = to;
-                    change = true;
-                }
+            case ProtocolInfo.UPDATE_ATTRIBUTES_PACKET:
+                if (((UpdateAttributesPacket) packet).entityId == from) ((UpdateAttributesPacket) packet).entityId = to;
                 break;
-            case EntityEventPacket.NETWORK_ID:
-                if (((EntityEventPacket) packet).eid == from) {
-                    ((EntityEventPacket) packet).eid = to;
-                    change = true;
-                }
+            case ProtocolInfo.ENTITY_EVENT_PACKET:
+                if (((EntityEventPacket) packet).eid == from) ((EntityEventPacket) packet).eid = to;
                 break;
-            case MovePlayerPacket.NETWORK_ID:
-                if (((MovePlayerPacket) packet).eid == from) {
-                    ((MovePlayerPacket) packet).eid = to;
-                    change = true;
-                }
+            case ProtocolInfo.MOVE_PLAYER_PACKET:
+                if (((MovePlayerPacket) packet).eid == from) ((MovePlayerPacket) packet).eid = to;
                 break;
-            case MobEquipmentPacket.NETWORK_ID:
-                if (((MobEquipmentPacket) packet).eid == from) {
-                    ((MobEquipmentPacket) packet).eid = to;
-                    change = true;
-                }
+            case ProtocolInfo.MOB_EQUIPMENT_PACKET:
+                if (((MobEquipmentPacket) packet).eid == from) ((MobEquipmentPacket) packet).eid = to;
                 break;
-            case MobEffectPacket.NETWORK_ID:
-                if (((MobEffectPacket) packet).eid == from) {
-                    ((MobEffectPacket) packet).eid = to;
-                    change = true;
-                }
+            case ProtocolInfo.MOB_EFFECT_PACKET:
+                if (((MobEffectPacket) packet).eid == from) ((MobEffectPacket) packet).eid = to;
                 break;
-            case MoveEntityAbsolutePacket.NETWORK_ID:
-                if (((MoveEntityAbsolutePacket) packet).eid == from) {
-                    ((MoveEntityAbsolutePacket) packet).eid = to;
-                    change = true;
-                }
+            case ProtocolInfo.MOVE_ENTITY_ABSOLUTE_PACKET:
+                if (((MoveEntityAbsolutePacket) packet).eid == from) ((MoveEntityAbsolutePacket) packet).eid = to;
                 break;
-            case MobArmorEquipmentPacket.NETWORK_ID:
-                if (((MobArmorEquipmentPacket) packet).eid == from) {
-                    ((MobArmorEquipmentPacket) packet).eid = to;
-                    change = true;
-                }
+            case ProtocolInfo.MOB_ARMOR_EQUIPMENT_PACKET:
+                if (((MobArmorEquipmentPacket) packet).eid == from) ((MobArmorEquipmentPacket) packet).eid = to;
                 break;
-            case PlayerListPacket.NETWORK_ID:
+            case ProtocolInfo.PLAYER_LIST_PACKET:
                 Arrays.stream(((PlayerListPacket) packet).entries).filter(entry -> entry.entityId == from).forEach(entry -> entry.entityId = to);
-                change = true;
                 break;
-            case BossEventPacket.NETWORK_ID:
-                if (((BossEventPacket) packet).bossEid == from) {
-                    ((BossEventPacket) packet).bossEid = to;
-                    change = true;
-                }
+            case ProtocolInfo.BOSS_EVENT_PACKET:
+                if (((BossEventPacket) packet).bossEid == from) ((BossEventPacket) packet).bossEid = to;
                 break;
-            case AdventureSettingsPacket.NETWORK_ID:
-                if (((AdventureSettingsPacket) packet).entityUniqueId == from) {
-                    ((AdventureSettingsPacket) packet).entityUniqueId = to;
-                    change = true;
-                }
+            case ProtocolInfo.ADVENTURE_SETTINGS_PACKET:
+                if (((AdventureSettingsPacket) packet).entityUniqueId == from) ((AdventureSettingsPacket) packet).entityUniqueId = to;
                 break;
             case ProtocolInfo.UPDATE_EQUIPMENT_PACKET:
-                if (((UpdateEquipmentPacket) packet).eid == from) {
-                    ((UpdateEquipmentPacket) packet).eid = to;
-                    change = true;
-                }
+                if (((UpdateEquipmentPacket) packet).eid == from) ((UpdateEquipmentPacket) packet).eid = to;
                 break;
+            default:
+                change = false;
         }
 
         if (change) {
             packet.isEncoded = false;
-            return packet;
         }
 
-        return pk;
+        return packet;
     }
 
     private static EntityMetadata replaceMetadata(EntityMetadata data, long from, long to) {
@@ -184,6 +113,7 @@ public class DataPacketEidReplacer {
 
         for (Integer key : replaceMetadata) {
             try {
+                @SuppressWarnings("rawtypes")
                 EntityData ed = data.get(key);
 
                 if (ed == null) {
@@ -210,11 +140,10 @@ public class DataPacketEidReplacer {
             }
         }
 
-        if (!changed) return null;
-
         return data;
     }
 
+    @SuppressWarnings("rawtypes")
     private static EntityMetadata cloneMetadata(EntityMetadata data) {
         EntityMetadata newData = new EntityMetadata();
 
