@@ -56,6 +56,7 @@ public class SynapseAPI extends PluginBase implements Listener {
                 }
             }
         }, 1, true);
+        //----------------------------------------------------------------
         this.getServer().getNetwork().registerPacket(ProtocolInfo.SET_HEALTH_PACKET, SetHealthPacket.class);
         this.messenger = new StandardMessenger();
         loadEntries();
