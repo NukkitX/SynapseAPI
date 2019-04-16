@@ -44,6 +44,18 @@ public class SynapseAPI extends PluginBase implements Listener {
 
     @Override
     public void onEnable() {
+        // Hack fix for attributes: #BLAME @Creeperface
+       this.getServer().getScheduler().scheduleRepeatingTask(new cn.nukkit.scheduler.Task() {
+            @Override
+            public void onRun(int i) {
+                for (Player player : Server.getInstance().getOnlinePlayers().values()) {
+                    player.setHealth(player.getHealth());
+                    player.setMaxHealth(player.getMaxHealth());
+                    player.setExperience(player.getExperience(), player.getExperienceLevel());
+                    player.getFoodData().setLevel(player.getFoodData().getLevel());
+                }
+            }
+        }, 1, true);
         this.getServer().getNetwork().registerPacket(ProtocolInfo.SET_HEALTH_PACKET, SetHealthPacket.class);
         this.messenger = new StandardMessenger();
         loadEntries();
