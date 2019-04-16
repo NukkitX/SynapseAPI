@@ -157,35 +157,35 @@ public class SynapseAPI extends PluginBase implements Listener {
         e.setCancelled();
 
 //        Map<DataPacket, List<Player>> unchanged = new HashMap<>();
-        HashMap<SynapseEntry, Map<SynapsePlayer, DataPacket[]>> map = new HashMap<>();
+//        Map<SynapsePlayer, DataPacket[]> map = new HashMap<>();
+//
+//        for (SynapsePlayer p : sp) {
+//            Map<SynapsePlayer, DataPacket[]> playerPackets = map.computeIfAbsent(p.getSynapseEntry(), k -> new HashMap<>());
+//
+//            DataPacket[] replaced = Arrays.stream(packets)
+//                    .map(packet -> DataPacketEidReplacer.replace(packet, p.getId(), SynapsePlayer.REPLACE_ID))
+//                    .toArray(DataPacket[]::new);
+//
+//            playerPackets.put(p, replaced);
+//        }
 
         for (SynapsePlayer p : sp) {
-            Map<SynapsePlayer, DataPacket[]> playerPackets = map.computeIfAbsent(p.getSynapseEntry(), k -> new HashMap<>());
+//                SynapsePlayer p = playerEntry.getKey();
 
-            DataPacket[] replaced = Arrays.stream(packets)
-                    .map(packet -> DataPacketEidReplacer.replace(packet, p.getId(), SynapsePlayer.REPLACE_ID))
-                    .toArray(DataPacket[]::new);
+            for (DataPacket pk : packets) {
+                pk = DataPacketEidReplacer.replace(pk, p.getId(), SynapsePlayer.REPLACE_ID);
 
-            playerPackets.put(p, replaced);
-        }
-
-        for (Map.Entry<SynapseEntry, Map<SynapsePlayer, DataPacket[]>> entry : map.entrySet()) {
-            for (Map.Entry<SynapsePlayer, DataPacket[]> playerEntry : entry.getValue().entrySet()) {
-                SynapsePlayer p = playerEntry.getKey();
-
-                for (DataPacket pk : playerEntry.getValue()) {
                     if (!pk.isEncoded) {
                         pk.encode();
                         pk.isEncoded = true;
                     }
 
                     if (pk instanceof MoveEntityAbsolutePacket) {
-                        MainLogger.getLogger().info("Sending movement of(" + ((MoveEntityAbsolutePacket) pk).eid + ") to player '" + p.getName() + "' (" + p.getId() + ")");
+                        MainLogger.getLogger().info("Sending movement of entity(" + ((MoveEntityAbsolutePacket) pk).eid + ") to player '" + p.getName() + "' (" + p.getId() + ")");
                     }
 
                     p.getInterface().putPacket(p, pk);
                 }
             }
-        }
     }
 }
