@@ -298,6 +298,7 @@ public class SynapseEntry {
         long usedTime = finalTime - time;
         //this.getSynapse().getServer().getLogger().warning(time + " -> threadTick 用时 " + usedTime + " 毫秒");
         if (((finalTime - this.lastUpdate) >= 30000) && this.synapseInterface.isConnected()) {  //30 seconds timeout
+//            MainLogger.getLogger().info("30s timeout");
             this.synapseInterface.reconnect();
         }
     }
