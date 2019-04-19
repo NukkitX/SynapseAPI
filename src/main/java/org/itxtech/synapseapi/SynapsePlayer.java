@@ -489,6 +489,19 @@ public class SynapsePlayer extends Player {
             packet.isEncoded = true;
         }
 
+        if (packet instanceof MoveEntityAbsolutePacket) {
+            MoveEntityAbsolutePacket meap = (MoveEntityAbsolutePacket) packet;
+
+            try {
+                meap.decode();
+            } catch (Exception e) {
+                MainLogger.getLogger().logException(e);
+                MainLogger.getLogger().info(meap.toString());
+            }
+
+            MainLogger.getLogger().info("Sending move packet of(" + meap.eid + ") to player " + this.getName());
+        }
+
         return this.interfaz.putPacket(this, packet, needACK, direct);
     }
 
