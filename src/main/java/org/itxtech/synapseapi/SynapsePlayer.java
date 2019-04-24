@@ -367,6 +367,34 @@ public class SynapsePlayer extends Player {
     protected void doFirstSpawn() {
         super.doFirstSpawn();
     }
+    
+    @Override
+    public boolean setMotion(Vector3 motion) {
+        if (!this.justCreated) {
+            EntityMotionEvent ev = new EntityMotionEvent(this, motion);
+            this.server.getPluginManager().callEvent(ev);
+            if (ev.isCancelled()) {
+                return false;
+            }
+        }
+        
+        if (this.chunk != null) {
+            this.getLevel().addEntityMotion(this, this.motionX, this.motionY, this.motionZ);  //Send to others
+            SetEntityMotionPacket pk = new SetEntityMotionPacket();
+            pk.eid = this.id;
+            pk.motionX = (float) motion.x;
+            pk.motionY = (float) motion.y;
+            pk.motionZ = (float) motion.z;
+            this.dataPacket(pk);  //Send to self
+        }
+
+        if (this.motionY > 0) {
+            //todo: check this
+            this.startAirTicks = (int) ((-(Math.log(this.getGravity() / (this.getGravity() + this.getDrag() * this.motionY))) / this.getDrag()) * 2 + 5);
+        }
+
+        return true;
+    }
 
     protected void forceSendEmptyChunks() {
         int chunkPositionX = this.getFloorX() >> 4;
