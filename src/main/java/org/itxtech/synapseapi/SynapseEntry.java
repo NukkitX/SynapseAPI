@@ -14,6 +14,7 @@ import cn.nukkit.utils.Zlib;
 import co.aikar.timings.Timing;
 import co.aikar.timings.TimingsManager;
 import com.google.gson.Gson;
+import org.itxtech.synapseapi.event.client.SynapsePluginMessageEvent;
 import org.itxtech.synapseapi.event.player.SynapsePlayerCreationEvent;
 import org.itxtech.synapseapi.messaging.StandardMessenger;
 import org.itxtech.synapseapi.network.SynLibInterface;
@@ -385,10 +386,11 @@ public class SynapseEntry {
             case SynapseInfo.PLUGIN_MESSAGE_PACKET:
                 PluginMessagePacket messagePacket = (PluginMessagePacket) pk;
 
+                this.getSynapse().getServer().getPluginManager().callEvent(new SynapsePluginMessageEvent(this, messagePacket.channel, messagePacket.data));
                 this.synapse.getMessenger().dispatchIncomingMessage(this, messagePacket.channel, messagePacket.data);
                 break;
         }
-        //this.handleDataPacketTiming.stopTiming();
+        this.handleDataPacketTiming.stopTiming();
     }
 
     private class RedirectPacketEntry {
