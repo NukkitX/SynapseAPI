@@ -5,6 +5,8 @@ import cn.nukkit.network.SourceInterface;
 import org.itxtech.synapseapi.SynapsePlayer;
 import org.itxtech.synapseapi.event.SynapseEvent;
 
+import java.net.InetSocketAddress;
+
 /**
  */
 public class SynapsePlayerCreationEvent extends SynapseEvent {
@@ -12,16 +14,14 @@ public class SynapsePlayerCreationEvent extends SynapseEvent {
     private static final HandlerList handlers = new HandlerList();
     private SourceInterface interfaz;
     private Long clientId;
-    private String address;
-    private int port;
+    private InetSocketAddress address;
     private Class<? extends SynapsePlayer> baseClass;
     private Class<? extends SynapsePlayer> playerClass;
 
-    public SynapsePlayerCreationEvent(SourceInterface interfaz, Class<? extends SynapsePlayer> baseClass, Class<? extends SynapsePlayer> playerClass, Long clientId, String address, int port) {
+    public SynapsePlayerCreationEvent(SourceInterface interfaz, Class<? extends SynapsePlayer> baseClass, Class<? extends SynapsePlayer> playerClass, Long clientId, InetSocketAddress address) {
         this.interfaz = interfaz;
         this.clientId = clientId;
         this.address = address;
-        this.port = port;
 
         this.baseClass = baseClass;
         this.playerClass = playerClass;
@@ -36,11 +36,11 @@ public class SynapsePlayerCreationEvent extends SynapseEvent {
     }
 
     public String getAddress() {
-        return address;
+        return this.address.getAddress().getHostAddress();
     }
 
     public int getPort() {
-        return port;
+        return this.address.getPort();
     }
 
     public Long getClientId() {
