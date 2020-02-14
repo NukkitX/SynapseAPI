@@ -283,7 +283,7 @@ public class SynapsePlayer extends Player {
             startGamePacket.yaw = (float) this.yaw;
             startGamePacket.pitch = (float) this.pitch;
             startGamePacket.seed = -1;
-            startGamePacket.dimension = (byte) (this.level.getDimension() & 0xff);
+            startGamePacket.dimension = /*(byte) (this.level.getDimension() & 0xff)*/0;
             startGamePacket.worldGamemode = getClientFriendlyGamemode(this.gamemode);
             startGamePacket.difficulty = this.server.getDifficulty();
             startGamePacket.spawnX = (int) this.x;
@@ -320,7 +320,6 @@ public class SynapsePlayer extends Player {
 
         this.level.sendTime(this);
 
-        this.setMovementSpeed(DEFAULT_SPEED);
         this.sendAttributes();
         this.setNameTagVisible(true);
         this.setNameTagAlwaysVisible(true);
