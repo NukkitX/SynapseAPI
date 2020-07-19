@@ -2,11 +2,11 @@ package org.itxtech.synapseapi.runnable;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.network.Network;
 import cn.nukkit.network.protocol.BatchPacket;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.utils.Binary;
-import cn.nukkit.utils.Zlib;
 import org.itxtech.synapseapi.network.SynapseInterface;
 import org.itxtech.synapseapi.network.protocol.spp.RedirectPacket;
 
@@ -74,7 +74,7 @@ public class SynapseEntryPutPacketThread extends Thread {
                         if (!(entry.packet instanceof BatchPacket) && this.isAutoCompress) {
                             byte[] buffer = entry.packet.getBuffer();
                             try {
-                                buffer = Zlib.deflate(
+                                buffer = Network.deflateRaw(
                                         Binary.appendBytes(Binary.writeUnsignedVarInt(buffer.length), buffer),
                                         Server.getInstance().networkCompressionLevel);
                                 pk.mcpeBuffer = Binary.appendBytes((byte) 0xfe, buffer);

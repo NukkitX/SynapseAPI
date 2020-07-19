@@ -4,6 +4,7 @@ import cn.nukkit.Nukkit;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.math.NukkitMath;
+import cn.nukkit.network.Network;
 import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.BatchPacket;
 import cn.nukkit.network.protocol.DataPacket;
@@ -11,7 +12,6 @@ import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.utils.Binary;
 import cn.nukkit.utils.BinaryStream;
-import cn.nukkit.utils.Zlib;
 import co.aikar.timings.Timing;
 import co.aikar.timings.TimingsManager;
 import com.google.gson.Gson;
@@ -406,7 +406,8 @@ public class SynapseEntry {
     private List<DataPacket> processBatch(BatchPacket packet) {
         byte[] data;
         try {
-            data = Zlib.inflate(packet.payload, 64 * 1024 * 1024);
+            data = Network.inflateRaw(packet.payload);
+            //data = Zlib.inflate(packet.payload, 64 * 1024 * 1024);
         } catch (Exception e) {
             return new ArrayList<>();
         }

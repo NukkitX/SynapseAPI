@@ -27,6 +27,7 @@ import org.itxtech.synapseapi.utils.ClientData.Entry;
 import org.itxtech.synapseapi.utils.DataPacketEidReplacer;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import java.util.UUID;
  */
 public class SynapsePlayer extends Player {
     private static final Method updateName;
+    private static final Field inventoryOpen;
 
     public static final long REPLACE_ID = Long.MAX_VALUE;
 
@@ -53,7 +55,10 @@ public class SynapsePlayer extends Player {
         try {
             updateName = Server.class.getDeclaredMethod("updateName", UUID.class, String.class);
             updateName.setAccessible(true);
-        } catch (NoSuchMethodException e) {
+
+            inventoryOpen = Player.class.getDeclaredField("inventoryOpen");
+            inventoryOpen.setAccessible(true);
+        } catch (NoSuchMethodException | NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
     }
@@ -393,6 +398,44 @@ public class SynapsePlayer extends Player {
         dataPacketTiming.startTiming();
 
         super.handleDataPacket(packet);
+
+        switch (packet.pid()) {
+            case ProtocolInfo.INTERACT_PACKET:
+                InteractPacket interactPacket = (InteractPacket) packet;
+                switch (interactPacket.action) {
+                    case InteractPacket.ACTION_OPEN_INVENTORY:
+                        if (interactPacket.target == REPLACE_ID) {
+                            try {
+                                if (!(boolean) inventoryOpen.get(this)) {
+                                    this.inventory.open(this);
+                                    inventoryOpen.set(this, true);
+                                }
+                            } catch (IllegalAccessException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                }
+                break;
+            case ProtocolInfo.ENTITY_EVENT_PACKET:
+                if (!this.spawned || !this.isAlive()) {
+                    break;
+                }
+
+                EntityEventPacket entityEventPacket = (EntityEventPacket) packet;
+                switch (entityEventPacket.event) {
+                    case EntityEventPacket.EATING_ITEM:
+                        if (entityEventPacket.data != 0 && entityEventPacket.eid == REPLACE_ID) {
+                            entityEventPacket.eid = this.id;
+                            entityEventPacket.isEncoded = false;
+
+                            this.dataPacket(entityEventPacket);
+                            Server.broadcastPacket(this.getViewers().values(), entityEventPacket);
+                        }
+                }
+                break;
+            default:
+                break;
+        }
 
         dataPacketTiming.stopTiming();
         if (!handlePlayerDataPacketTimings.containsKey(packet.pid()))
