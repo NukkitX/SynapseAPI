@@ -471,17 +471,17 @@ public class SynapsePlayer extends Player {
     }
 
     @Override
-    public int dataPacket(DataPacket packet, boolean needACK) {
-        if (!this.isSynapseLogin) return super.dataPacket(packet, needACK);
+    public boolean dataPacket(DataPacket packet) {
+        if (!this.isSynapseLogin) return super.dataPacket(packet);
 
-        return sendDataPacket(packet, needACK, false);
+        return sendDataPacket(packet, false, false) != -1;
     }
 
     @Override
-    public int directDataPacket(DataPacket packet, boolean needACK) {
-        if (!this.isSynapseLogin) return super.directDataPacket(packet, needACK);
+    public boolean directDataPacket(DataPacket packet) {
+        if (!this.isSynapseLogin) return super.directDataPacket(packet);
 
-        return sendDataPacket(packet, needACK, true);
+        return sendDataPacket(packet, false, true) != -1;
     }
 
     public int sendDataPacket(DataPacket packet, boolean needACK, boolean direct) {
