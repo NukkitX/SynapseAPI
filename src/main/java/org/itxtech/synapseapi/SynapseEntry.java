@@ -24,6 +24,7 @@ import org.itxtech.synapseapi.utils.ClientData;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -242,15 +243,16 @@ public class SynapseEntry {
         public void run() {
             PlayerLoginPacket playerLoginPacket;
             while ((playerLoginPacket = playerLoginQueue.poll()) != null) {
-                SynapsePlayerCreationEvent ev = new SynapsePlayerCreationEvent(synLibInterface, SynapsePlayer.class, SynapsePlayer.class, new Random().nextLong(), playerLoginPacket.address, playerLoginPacket.port);
+                InetSocketAddress address = new InetSocketAddress(playerLoginPacket.address, playerLoginPacket.port);
+                SynapsePlayerCreationEvent ev = new SynapsePlayerCreationEvent(synLibInterface, SynapsePlayer.class, SynapsePlayer.class, new Random().nextLong(), address);
                 getSynapse().getServer().getPluginManager().callEvent(ev);
                 Class<? extends SynapsePlayer> clazz = ev.getPlayerClass();
                 try {
-                    Constructor constructor = clazz.getConstructor(SourceInterface.class, SynapseEntry.class, Long.class, String.class, int.class);
-                    SynapsePlayer player = (SynapsePlayer) constructor.newInstance(synLibInterface, this.entry, ev.getClientId(), ev.getAddress(), ev.getPort());
+                    Constructor constructor = clazz.getConstructor(SourceInterface.class, SynapseEntry.class, Long.class, InetSocketAddress.class);
+                    SynapsePlayer player = (SynapsePlayer) constructor.newInstance(synLibInterface, this.entry, ev.getClientId(), address);
                     player.setUniqueId(playerLoginPacket.uuid);
                     players.put(playerLoginPacket.uuid, player);
-                    getSynapse().getServer().addPlayer(playerLoginPacket.uuid.toString(), player);
+                    getSynapse().getServer().addPlayer(address, player);
                     player.handleLoginPacket(playerLoginPacket);
                 } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
                     Server.getInstance().getLogger().logException(e);

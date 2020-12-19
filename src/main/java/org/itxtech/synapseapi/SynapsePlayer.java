@@ -30,10 +30,8 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.net.InetSocketAddress;
+import java.util.*;
 
 /**
  * Created by boybook on 16/6/24.
@@ -63,8 +61,8 @@ public class SynapsePlayer extends Player {
         }
     }
 
-    public SynapsePlayer(SourceInterface interfaz, SynapseEntry synapseEntry, Long clientID, String ip, int port) {
-        super(interfaz, clientID, ip, port);
+    public SynapsePlayer(SourceInterface interfaz, SynapseEntry synapseEntry, Long clientID, InetSocketAddress address) {
+        super(interfaz, clientID, address);
         this.synapseEntry = synapseEntry;
         this.isSynapseLogin = this.synapseEntry != null;
     }
@@ -332,8 +330,8 @@ public class SynapsePlayer extends Player {
 
         this.server.getLogger().info(this.getServer().getLanguage().translateString("nukkit.player.logIn",
                 TextFormat.AQUA + this.username + TextFormat.WHITE,
-                this.ip,
-                String.valueOf(this.port),
+                this.getAddress(),
+                String.valueOf(this.getPort()),
                 String.valueOf(this.id),
                 this.level.getName(),
                 String.valueOf(NukkitMath.round(this.x, 4)),
