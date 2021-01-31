@@ -67,10 +67,7 @@ public class SynapseEntryPutPacketThread extends Thread {
                         RedirectPacket pk = new RedirectPacket();
                         pk.uuid = entry.player.getUniqueId();
                         pk.direct = entry.immediate;
-                        if (!entry.packet.isEncoded) {
-                            entry.packet.encode();
-                            entry.packet.isEncoded = true;
-                        }
+                        entry.packet.tryEncode();
                         if (!(entry.packet instanceof BatchPacket) && this.isAutoCompress) {
                             byte[] buffer = entry.packet.getBuffer();
                             try {

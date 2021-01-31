@@ -79,7 +79,7 @@ public class SynapseAPI extends PluginBase implements Listener {
 
         byte start = 1;
         DataPacket data;
-        data = this.getServer().getNetwork().getPacket(pid);
+        data = this.getServer().getNetwork().getPacket(pid & 0xff);
 
         if (data == null) {
             Server.getInstance().getLogger().notice("C => S Unknown packet with PID 0x" + String.format("%02x", pid));

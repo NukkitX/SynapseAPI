@@ -319,6 +319,14 @@ public class SynapsePlayer extends Player {
             this.dataPacket(pk);
         }
 
+        this.inventory.sendCreativeContents();
+        this.getAdventureSettings().update();
+
+        this.sendAttributes();
+
+        this.sendPotionEffects(this);
+        this.sendData(this);
+
         this.loggedIn = true;
 
         this.level.sendTime(this);
@@ -492,10 +500,7 @@ public class SynapsePlayer extends Player {
             return -1;
         }
 
-        if (!packet.isEncoded) {
-            packet.encode();
-            packet.isEncoded = true;
-        }
+        packet.tryEncode();
 
         return this.interfaz.putPacket(this, packet, needACK, direct);
     }
