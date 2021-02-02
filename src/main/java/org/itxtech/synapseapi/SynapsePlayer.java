@@ -319,6 +319,14 @@ public class SynapsePlayer extends Player {
             this.dataPacket(pk);
         }
 
+        this.inventory.sendCreativeContents();
+        this.getAdventureSettings().update();
+
+        this.sendAttributes();
+
+        this.sendPotionEffects(this);
+        this.sendData(this);
+
         this.loggedIn = true;
 
         this.level.sendTime(this);
@@ -471,17 +479,17 @@ public class SynapsePlayer extends Player {
     }
 
     @Override
-    public int dataPacket(DataPacket packet, boolean needACK) {
-        if (!this.isSynapseLogin) return super.dataPacket(packet, needACK);
+    public boolean dataPacket(DataPacket packet) {
+        if (!this.isSynapseLogin) return super.dataPacket(packet);
 
-        return sendDataPacket(packet, needACK, false);
+        return sendDataPacket(packet, false, false) != -1;
     }
 
     @Override
-    public int directDataPacket(DataPacket packet, boolean needACK) {
-        if (!this.isSynapseLogin) return super.directDataPacket(packet, needACK);
+    public boolean directDataPacket(DataPacket packet) {
+        if (!this.isSynapseLogin) return super.directDataPacket(packet);
 
-        return sendDataPacket(packet, needACK, true);
+        return sendDataPacket(packet, false, true) != -1;
     }
 
     public int sendDataPacket(DataPacket packet, boolean needACK, boolean direct) {
@@ -492,10 +500,7 @@ public class SynapsePlayer extends Player {
             return -1;
         }
 
-        if (!packet.isEncoded) {
-            packet.encode();
-            packet.isEncoded = true;
-        }
+        packet.tryEncode();
 
         return this.interfaz.putPacket(this, packet, needACK, direct);
     }

@@ -423,7 +423,7 @@ public class SynapseEntry {
 
                 DataPacket pk;
 
-                if ((pk = Server.getInstance().getNetwork().getPacket(buf[0])) != null) {
+                if ((pk = Server.getInstance().getNetwork().getPacket(buf[0] & 0xff)) != null) {
                     pk.setBuffer(buf, 3);
 
                     pk.decode();
