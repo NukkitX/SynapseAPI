@@ -403,45 +403,7 @@ public class SynapsePlayer extends Player {
         Timing dataPacketTiming = handlePlayerDataPacketTimings.getOrDefault(packet.pid(), TimingsManager.getTiming("SynapseEntry - HandlePlayerDataPacket - " + packet.getClass().getSimpleName()));
         dataPacketTiming.startTiming();
 
-        super.handleDataPacket(packet);
-
-        switch (packet.pid()) {
-            case ProtocolInfo.INTERACT_PACKET:
-                InteractPacket interactPacket = (InteractPacket) packet;
-                switch (interactPacket.action) {
-                    case InteractPacket.ACTION_OPEN_INVENTORY:
-                        if (interactPacket.target == REPLACE_ID) {
-                            try {
-                                if (!(boolean) inventoryOpen.get(this)) {
-                                    this.inventory.open(this);
-                                    inventoryOpen.set(this, true);
-                                }
-                            } catch (IllegalAccessException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                }
-                break;
-            case ProtocolInfo.ENTITY_EVENT_PACKET:
-                if (!this.spawned || !this.isAlive()) {
-                    break;
-                }
-
-                EntityEventPacket entityEventPacket = (EntityEventPacket) packet;
-                switch (entityEventPacket.event) {
-                    case EntityEventPacket.EATING_ITEM:
-                        if (entityEventPacket.data != 0 && entityEventPacket.eid == REPLACE_ID) {
-                            entityEventPacket.eid = this.id;
-                            entityEventPacket.isEncoded = false;
-
-                            this.dataPacket(entityEventPacket);
-                            Server.broadcastPacket(this.getViewers().values(), entityEventPacket);
-                        }
-                }
-                break;
-            default:
-                break;
-        }
+        super.handleDataPacket(DataPacketEidReplacer.replaceBack(packet, REPLACE_ID, this.getId()));
 
         dataPacketTiming.stopTiming();
         if (!handlePlayerDataPacketTimings.containsKey(packet.pid()))

@@ -1,21 +1,21 @@
 package org.itxtech.synapseapi;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.server.BatchPacketsEvent;
 import cn.nukkit.network.RakNetInterface;
 import cn.nukkit.network.SourceInterface;
 import cn.nukkit.network.protocol.DataPacket;
-import cn.nukkit.network.protocol.ProtocolInfo;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.ConfigSection;
+import cn.nukkit.utils.VarInt;
 import org.itxtech.synapseapi.messaging.Messenger;
 import org.itxtech.synapseapi.messaging.StandardMessenger;
-import org.itxtech.synapseapi.network.protocol.mcpe.SetHealthPacket;
 import org.itxtech.synapseapi.utils.DataPacketEidReplacer;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -44,7 +44,6 @@ public class SynapseAPI extends PluginBase implements Listener {
 
     @Override
     public void onEnable() {
-        this.getServer().getNetwork().registerPacket(ProtocolInfo.SET_HEALTH_PACKET, SetHealthPacket.class);
         this.messenger = new StandardMessenger();
         loadEntries();
 
@@ -75,18 +74,25 @@ public class SynapseAPI extends PluginBase implements Listener {
     }
 
     public DataPacket getPacket(byte[] buffer) {
-        byte pid = buffer[0] == (byte) 0xfe ? (byte) 0xff : buffer[0];
-
-        byte start = 1;
-        DataPacket data;
-        data = this.getServer().getNetwork().getPacket(pid & 0xff);
-
-        if (data == null) {
-            Server.getInstance().getLogger().notice("C => S Unknown packet with PID 0x" + String.format("%02x", pid));
-            return null;
+        ByteArrayInputStream bais = new ByteArrayInputStream(buffer);
+        int header;
+        try {
+            header = (int) VarInt.readUnsignedVarInt(bais);
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to decode packet header", e);
         }
-        data.setBuffer(buffer, start);
-        return data;
+
+        // | Client ID | Sender ID | Packet ID |
+        // |   2 bits  |   2 bits  |  10 bits  |
+        int packetId = header & 0x3ff;
+
+        DataPacket packet = this.getServer().getNetwork().getPacket(packetId == 0xfe ? 0xff : packetId);
+
+        if (packet != null) {
+            packet.setBuffer(buffer, buffer.length - bais.available());
+        }
+
+        return packet;
     }
 
     private void loadEntries() {
@@ -135,7 +141,6 @@ public class SynapseAPI extends PluginBase implements Listener {
 
         DataPacket[] packets = e.getPackets();
 
-        Map<DataPacket, List<Player>> unchanged = new HashMap<>();
         HashMap<SynapseEntry, Map<Player, DataPacket[]>> map = new HashMap<>();
 
         for (Player p : players) {

@@ -169,6 +169,36 @@ public class DataPacketEidReplacer {
                     change = true;
                 }
                 break;
+            case ProtocolInfo.UPDATE_TRADE_PACKET:
+                if (((UpdateTradePacket) packet).player == from) {
+                    ((UpdateTradePacket) packet).player = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.CAMERA_PACKET:
+                if (((CameraPacket) packet).playerUniqueId == from) {
+                    ((CameraPacket) packet).playerUniqueId = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.UPDATE_PLAYER_GAME_TYPE_PACKET:
+                if (((UpdatePlayerGameTypePacket) packet).entityId == from) {
+                    ((UpdatePlayerGameTypePacket) packet).entityId = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.SPAWN_PARTICLE_EFFECT_PACKET:
+                if (((SpawnParticleEffectPacket) packet).uniqueEntityId == from) {
+                    ((SpawnParticleEffectPacket) packet).uniqueEntityId = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.EMOTE_PACKET:
+                if (((EmotePacket) packet).runtimeId == from) {
+                    ((EmotePacket) packet).runtimeId = to;
+                    change = true;
+                }
+                break;
         }
 
         if (change) {
@@ -177,6 +207,96 @@ public class DataPacketEidReplacer {
         }
 
         return pk;
+    }
+
+    public static DataPacket replaceBack(DataPacket packet, long from, long to) {
+        boolean change = false;
+
+        switch (packet.pid()) {
+            case ProtocolInfo.MOVE_PLAYER_PACKET:
+                MovePlayerPacket movePlayerPacket = (MovePlayerPacket) packet;
+                if (movePlayerPacket.eid == from) {
+                    movePlayerPacket.eid = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.ADVENTURE_SETTINGS_PACKET:
+                AdventureSettingsPacket adventureSettingsPacket = (AdventureSettingsPacket) packet;
+                if (adventureSettingsPacket.entityUniqueId == from) {
+                    adventureSettingsPacket.entityUniqueId = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.MOB_EQUIPMENT_PACKET:
+                MobEquipmentPacket mobEquipmentPacket = (MobEquipmentPacket) packet;
+                if (mobEquipmentPacket.eid == from) {
+                    mobEquipmentPacket.eid = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.PLAYER_ACTION_PACKET:
+                PlayerActionPacket playerActionPacket = (PlayerActionPacket) packet;
+                if (playerActionPacket.entityId == from) {
+                    playerActionPacket.entityId = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.INTERACT_PACKET:
+                InteractPacket interactPacket = (InteractPacket) packet;
+                if (interactPacket.target == from) {
+                    interactPacket.target = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.ANIMATE_PACKET:
+                AnimatePacket animatePacket = (AnimatePacket) packet;
+                if (animatePacket.eid == from) {
+                    animatePacket.eid = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.ENTITY_EVENT_PACKET:
+                EntityEventPacket entityEventPacket = (EntityEventPacket) packet;
+                if (entityEventPacket.eid == from) {
+                    entityEventPacket.eid = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.SET_LOCAL_PLAYER_AS_INITIALIZED_PACKET:
+                SetLocalPlayerAsInitializedPacket setLocalPlayerAsInitializedPacket = (SetLocalPlayerAsInitializedPacket) packet;
+                if (setLocalPlayerAsInitializedPacket.eid == from) {
+                    setLocalPlayerAsInitializedPacket.eid = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.RESPAWN_PACKET:
+                RespawnPacket respawnPacket = (RespawnPacket) packet;
+                if (respawnPacket.runtimeEntityId == from) {
+                    respawnPacket.runtimeEntityId = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.EMOTE_PACKET:
+                EmotePacket emotePacket = (EmotePacket) packet;
+                if (emotePacket.runtimeId == from) {
+                    emotePacket.runtimeId = to;
+                    change = true;
+                }
+                break;
+            case ProtocolInfo.EMOTE_LIST_PACKET:
+                EmoteListPacket emoteListPacket = (EmoteListPacket) packet;
+                if (emoteListPacket.runtimeId == from) {
+                    emoteListPacket.runtimeId = to;
+                    change = true;
+                }
+                break;
+        }
+
+        if (change) {
+            packet.isEncoded = false;
+        }
+
+        return packet;
     }
 
     private static EntityMetadata replaceMetadata(EntityMetadata data, long from, long to) {
